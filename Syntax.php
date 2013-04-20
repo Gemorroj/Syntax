@@ -61,17 +61,11 @@ class Syntax
 
     /**
      * @param string $path
-     * @throws Exception
      * @return Syntax
      */
     public function setCli($path)
     {
-        $this->cli = str_replace('\\', '/', realpath($path));
-
-        if (false === is_executable($this->cli)) {
-            throw new Exception('Cli path is not available');
-        }
-
+        $this->cli = $path;
         return $this;
     }
 
