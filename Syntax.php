@@ -13,29 +13,46 @@ class Syntax
 {
     // UNIX /usr/bin/php
     // BSD /usr/local/bin/php
+    // Win C:/php/php.exe
     private $cli = 'php';
     private $tempDirectory;
     private $sourceCharset;
     private $resultCharset = 'UTF-8';
 
 
+    /**
+     * @param string $resultCharset
+     *
+     * @return $this
+     */
     public function setResultCharset($resultCharset)
     {
         $this->resultCharset = $resultCharset;
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getResultCharset()
     {
         return $this->resultCharset;
     }
 
+    /**
+     * @param string $sourceCharset
+     *
+     * @return $this
+     */
     public function setSourceCharset($sourceCharset)
     {
         $this->sourceCharset = $sourceCharset;
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getSourceCharset()
     {
         return $this->sourceCharset;
@@ -44,11 +61,17 @@ class Syntax
 
     /**
      * @param string $path
+     * @throws Exception
      * @return Syntax
      */
     public function setCli($path)
     {
-        $this->cli = $path;
+        $this->cli = str_replace('\\', '/', realpath($path));
+
+        if (false === is_executable($this->cli)) {
+            throw new Exception('Cli path is not available');
+        }
+
         return $this;
     }
 
@@ -72,7 +95,7 @@ class Syntax
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getTempDirectory()
     {
