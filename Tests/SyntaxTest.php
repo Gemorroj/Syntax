@@ -11,7 +11,7 @@ class SyntaxTest extends PHPUnit_Framework_TestCase
     {
         require_once __DIR__ . '/../Syntax.php';
         $this->syntax = new Syntax();
-        $this->syntax->setCli('s:\OpenServer\modules\php\PHP-5.4.13\php.exe');
+        //$this->syntax->setCli('s:\OpenServer\modules\php\PHP-5.4.13\php.exe');
     }
 
     public function testCheck()
