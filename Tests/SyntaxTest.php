@@ -34,11 +34,19 @@ class SyntaxTest extends PHPUnit_Framework_TestCase
     {
         $result = $this->syntax->check('<?php echo "; ?>');
 
+        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+            $expect = array(
+                'line' => 1,
+                'description' => 'Parse error: syntax error, unexpected $end, expecting T_VARIABLE or T_DOLLAR_OPEN_CURLY_BRACES or T_CURLY_OPEN in ... on line 1'
+            );
+        } else {
+            $expect = array(
+                'line' => 1,
+                'description' => 'Parse error: syntax error, unexpected end of file, expecting variable (T_VARIABLE) or ${ (T_DOLLAR_OPEN_CURLY_BRACES) or {$ (T_CURLY_OPEN) in ... on line 1'
+            );
+        }
 
-        $this->assertEquals(array(
-            'line' => 1,
-            'description' => 'Parse error: syntax error, unexpected end of file, expecting variable (T_VARIABLE) or ${ (T_DOLLAR_OPEN_CURLY_BRACES) or {$ (T_CURLY_OPEN) in ... on line 1'
-        ), $result);
+        $this->assertEquals($expect, $result);
     }
 
 
@@ -46,10 +54,19 @@ class SyntaxTest extends PHPUnit_Framework_TestCase
     {
         $result = $this->syntax->checkFile(__DIR__ . '/fail.php');
 
-        $this->assertEquals(array(
-            'line' => 4,
-            'description' => 'Parse error: syntax error, unexpected end of file, expecting variable (T_VARIABLE) or ${ (T_DOLLAR_OPEN_CURLY_BRACES) or {$ (T_CURLY_OPEN) in ' . __DIR__ . '/fail.php on line 4'
-        ), $result);
+        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+            $expect = array(
+                'line' => 1,
+                'description' => 'Parse error: syntax error, unexpected $end, expecting T_VARIABLE or T_DOLLAR_OPEN_CURLY_BRACES or T_CURLY_OPEN in ' . __DIR__ . '/fail.php on line 4'
+            );
+        } else {
+            $expect = array(
+                'line' => 4,
+                'description' => 'Parse error: syntax error, unexpected end of file, expecting variable (T_VARIABLE) or ${ (T_DOLLAR_OPEN_CURLY_BRACES) or {$ (T_CURLY_OPEN) in ' . __DIR__ . '/fail.php on line 4'
+            );
+        }
+
+        $this->assertEquals($expect, $result);
     }
 
 

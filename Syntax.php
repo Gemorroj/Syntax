@@ -163,7 +163,7 @@ class Syntax
                 $error = str_replace($file, '...', $error);
             }
             $result = array(
-                'line' => preg_replace('/.*\s(\d*)$/', '$1', $error, 1),
+                'line' => (int) preg_replace('/.*\s(\d*)$/', '$1', $error, 1),
                 'description' => $error,
             );
         } else {
