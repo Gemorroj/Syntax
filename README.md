@@ -2,6 +2,11 @@
 
 [![Build Status](https://secure.travis-ci.org/Gemorroj/syntax.png?branch=master)](https://travis-ci.org/Gemorroj/syntax)
 
+Requirements:
+
+- PHP >= 5.2
+
+
 Example:
 ```php
 <?php
