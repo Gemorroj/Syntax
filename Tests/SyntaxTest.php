@@ -59,7 +59,12 @@ class SyntaxTest extends PHPUnit_Framework_TestCase
     {
         $result = $this->syntax->checkFile(dirname(__FILE__) . '/fail.php');
 
-        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+        if (version_compare(PHP_VERSION, '5.3.0', '<')) {
+            $expect = array(
+                'line' => 4,
+                'description' => 'Parse error: syntax error, unexpected $end in ' . dirname(__FILE__) . '/fail.php on line 4'
+            );
+        } elseif (version_compare(PHP_VERSION, '5.4.0', '<')) {
             $expect = array(
                 'line' => 4,
                 'description' => 'Parse error: syntax error, unexpected $end, expecting T_VARIABLE or T_DOLLAR_OPEN_CURLY_BRACES or T_CURLY_OPEN in ' . dirname(__FILE__) . '/fail.php on line 4'
