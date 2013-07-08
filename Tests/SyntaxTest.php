@@ -34,7 +34,12 @@ class SyntaxTest extends PHPUnit_Framework_TestCase
     {
         $result = $this->syntax->check('<?php echo "; ?>');
 
-        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+        if (version_compare(PHP_VERSION, '5.3.0', '<')) {
+            $expect = array(
+                'line' => 1,
+                'description' => 'Parse error: syntax error, unexpected $end in ... on line 1'
+            );
+        } elseif (version_compare(PHP_VERSION, '5.4.0', '<')) {
             $expect = array(
                 'line' => 1,
                 'description' => 'Parse error: syntax error, unexpected $end, expecting T_VARIABLE or T_DOLLAR_OPEN_CURLY_BRACES or T_CURLY_OPEN in ... on line 1'
