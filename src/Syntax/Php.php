@@ -126,7 +126,7 @@ class Php
 
 
         try {
-            $result = $this->checkFile($file, true);
+            $result = $this->checkFile($file);
         } catch (\Exception $e) {
             unlink($file);
             throw $e;
@@ -140,45 +140,54 @@ class Php
 
     /**
      * @param string $file
-     * @param bool $hideFile
      *
      * @return array
      * @throws \Exception
      */
-    public function checkFile($file, $hideFile = false)
+    public function checkFile($file)
     {
-        exec(escapeshellcmd($this->getCli()) . ' -c -f -l ' . escapeshellarg($file), $rt, $v);
+        $cliArray = array();
+        $code = 0;
 
-        $size = sizeof($rt);
+        exec(escapeshellcmd($this->getCli()) . ' -c -f -l ' . escapeshellarg($file), $cliArray, $code);
 
-        if (!$size) {
-            throw new \Exception('Could not check syntax');
+        if (0 === $code) {
+            return array('validity' => true, 'errors' => null);
         }
 
-        if ($v === 255 || $size > 2) {
-            $error = $rt[1];
+        $size = sizeof($cliArray);
+        if ($size > 2) {
+            $message = preg_replace('/ in (?:.+) on line (?:[0-9]+)$/', '', $cliArray[1]);
+            preg_match('/ on line ([0-9]+)$/', $cliArray[1], $matchLine);
+            $line = $matchLine[1];
+
+            list($type, $message) = explode(': ', $message);
 
             if (null !== $this->getSourceCharset()) {
-                $error = mb_convert_encoding($error, $this->getResultCharset(), $this->getSourceCharset());
+                $message = mb_convert_encoding($message, $this->getResultCharset(), $this->getSourceCharset());
             }
-            if (true === $hideFile) {
-                $error = str_replace($file, '...', $error);
-            }
-            $result = array(
-                'line' => (int) preg_replace('/.*\s(\d*)$/', '$1', $error, 1),
-                'description' => $error,
+
+            return array(
+                'validity' => false,
+                'errors' => array(
+                    array(
+                        'file' => $file,
+                        'code' => $code,
+                        'line' => $line,
+                        'type' => $type,
+                        'message' => $message
+                    ),
+                ),
             );
-        } else {
-            $result = array();
         }
 
-        return $result;
+        throw new \Exception('Could not check syntax');
     }
 
 
     /**
      * @param string $source
-     * @param int $line
+     * @param int    $line
      * @param string $cssCodeClass
      * @param string $cssCodeCorrectLineClass
      * @param string $cssCodeIncorrectLineClass
@@ -193,7 +202,7 @@ class Php
 
     /**
      * @param string $source
-     * @param int $line
+     * @param int    $line
      * @param string $cssCodeCorrectLineClass
      * @param string $cssCodeIncorrectLineClass
      *

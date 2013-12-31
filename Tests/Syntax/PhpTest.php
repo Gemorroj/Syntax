@@ -20,7 +20,7 @@ class PhpTest extends \PHPUnit_Framework_TestCase
     {
         $result = $this->syntax->check('<?php echo 1; ?>');
 
-        $this->assertEquals(array(), $result);
+        $this->assertEquals(array('validity' => true, 'errors' => null), $result);
     }
 
 
@@ -28,7 +28,7 @@ class PhpTest extends \PHPUnit_Framework_TestCase
     {
         $result = $this->syntax->checkFile(__DIR__ . '/correct.php');
 
-        $this->assertEquals(array(), $result);
+        $this->assertEquals(array('validity' => true, 'errors' => null), $result);
     }
 
 
@@ -36,22 +36,36 @@ class PhpTest extends \PHPUnit_Framework_TestCase
     {
         $result = $this->syntax->check('<?php echo "; ?>');
 
-        if (version_compare(PHP_VERSION, '5.3.0', '<')) {
+        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
             $expect = array(
-                'line' => 1,
-                'description' => 'Parse error: syntax error, unexpected $end in ... on line 1'
-            );
-        } elseif (version_compare(PHP_VERSION, '5.4.0', '<')) {
-            $expect = array(
-                'line' => 1,
-                'description' => 'Parse error: syntax error, unexpected $end, expecting T_VARIABLE or T_DOLLAR_OPEN_CURLY_BRACES or T_CURLY_OPEN in ... on line 1'
+                'validity' => false,
+                'errors' => array(
+                    array(
+                        'file' => null,
+                        'code' => -1,
+                        'line' => 1,
+                        'type' => 'Parse error',
+                        'message' => 'syntax error, unexpected $end, expecting T_VARIABLE or T_DOLLAR_OPEN_CURLY_BRACES or T_CURLY_OPEN',
+                    )
+                ),
             );
         } else {
             $expect = array(
-                'line' => 1,
-                'description' => 'Parse error: syntax error, unexpected end of file, expecting variable (T_VARIABLE) or ${ (T_DOLLAR_OPEN_CURLY_BRACES) or {$ (T_CURLY_OPEN) in ... on line 1'
+                'validity' => false,
+                'errors' => array(
+                    array(
+                        'file' => null,
+                        'code' => -1,
+                        'line' => 1,
+                        'type' => 'Parse error',
+                        'message' => 'syntax error, unexpected end of file, expecting variable (T_VARIABLE) or ${ (T_DOLLAR_OPEN_CURLY_BRACES) or {$ (T_CURLY_OPEN)',
+                    )
+                ),
             );
         }
+
+        // remove file
+        $result['errors'][0]['file'] = null;
 
         $this->assertEquals($expect, $result);
     }
@@ -61,20 +75,31 @@ class PhpTest extends \PHPUnit_Framework_TestCase
     {
         $result = $this->syntax->checkFile(__DIR__ . '/fail.php');
 
-        if (version_compare(PHP_VERSION, '5.3.0', '<')) {
+        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
             $expect = array(
-                'line' => 4,
-                'description' => 'Parse error: syntax error, unexpected $end in ' . __DIR__ . '/fail.php on line 4'
-            );
-        } elseif (version_compare(PHP_VERSION, '5.4.0', '<')) {
-            $expect = array(
-                'line' => 4,
-                'description' => 'Parse error: syntax error, unexpected $end, expecting T_VARIABLE or T_DOLLAR_OPEN_CURLY_BRACES or T_CURLY_OPEN in ' . __DIR__ . '/fail.php on line 4'
+                'validity' => false,
+                'errors' => array(
+                    array(
+                        'file' => __DIR__ . '/fail.php',
+                        'code' => -1,
+                        'line' => 4,
+                        'type' => 'Parse error',
+                        'message' => 'syntax error, unexpected end of file, expecting variable (T_VARIABLE) or ${ (T_DOLLAR_OPEN_CURLY_BRACES) or {$ (T_CURLY_OPEN)',
+                    )
+                ),
             );
         } else {
             $expect = array(
-                'line' => 4,
-                'description' => 'Parse error: syntax error, unexpected end of file, expecting variable (T_VARIABLE) or ${ (T_DOLLAR_OPEN_CURLY_BRACES) or {$ (T_CURLY_OPEN) in ' . __DIR__ . '/fail.php on line 4'
+                'validity' => false,
+                'errors' => array(
+                    array(
+                        'file' => __DIR__ . '/fail.php',
+                        'code' => -1,
+                        'line' => 4,
+                        'type' => 'Parse error',
+                        'message' => 'syntax error, unexpected end of file, expecting variable (T_VARIABLE) or ${ (T_DOLLAR_OPEN_CURLY_BRACES) or {$ (T_CURLY_OPEN)',
+                    )
+                ),
             );
         }
 
