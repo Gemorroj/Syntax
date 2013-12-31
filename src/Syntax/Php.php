@@ -1,15 +1,17 @@
 <?php
+namespace Syntax;
+
 /**
  *
  * This software is distributed under the GNU GPL v3.0 license.
  * @author Gemorroj
  * @copyright 2013 http://wapinet.ru
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
- * @link https://github.com/Gemorroj/syntax
+ * @link https://github.com/Gemorroj/Syntax
  * @version 0.1
  *
  */
-class Syntax
+class Php
 {
     // UNIX /usr/bin/php
     // BSD /usr/local/bin/php
@@ -61,7 +63,7 @@ class Syntax
 
     /**
      * @param string $path
-     * @return Syntax
+     * @return Php
      */
     public function setCli($path)
     {
@@ -80,7 +82,7 @@ class Syntax
 
     /**
      * @param string $path
-     * @return Syntax
+     * @return Php
      */
     public function setTempDirectory($path)
     {
@@ -101,31 +103,31 @@ class Syntax
      * @param string $source
      *
      * @return array
-     * @throws Exception
+     * @throws \Exception
      */
     public function check($source)
     {
         $file = tempnam($this->getTempDirectory(), 'syntax');
         if (false === $file) {
-            throw new Exception('Could not create temp file');
+            throw new \Exception('Could not create temp file');
         }
         $fp = fopen($file, 'w');
         if (false === $fp) {
-            throw new Exception('Could not open temp file');
+            throw new \Exception('Could not open temp file');
         }
         $write = fwrite($fp, $source);
         if (false === $write) {
-            throw new Exception('Could not write source to temp file');
+            throw new \Exception('Could not write source to temp file');
         }
         $close = fclose($fp);
         if (false === $close) {
-            throw new Exception('Could not close temp file');
+            throw new \Exception('Could not close temp file');
         }
 
 
         try {
             $result = $this->checkFile($file, true);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             unlink($file);
             throw $e;
         }
@@ -141,7 +143,7 @@ class Syntax
      * @param bool $hideFile
      *
      * @return array
-     * @throws Exception
+     * @throws \Exception
      */
     public function checkFile($file, $hideFile = false)
     {
@@ -150,7 +152,7 @@ class Syntax
         $size = sizeof($rt);
 
         if (!$size) {
-            throw new Exception('Could not check syntax');
+            throw new \Exception('Could not check syntax');
         }
 
         if ($v === 255 || $size > 2) {

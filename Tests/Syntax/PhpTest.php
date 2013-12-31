@@ -1,16 +1,18 @@
 <?php
+namespace Tests\Syntax;
 
-class SyntaxTest extends PHPUnit_Framework_TestCase
+use Syntax\Php;
+
+class PhpTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Syntax
+     * @var Php
      */
     private $syntax;
 
     public function setUp()
     {
-        require_once dirname(__FILE__) . '/../Syntax.php';
-        $this->syntax = new Syntax();
+        $this->syntax = new Php();
         //$this->syntax->setCli('s:\OpenServer\modules\php\PHP-5.4.13\php.exe');
     }
 
@@ -24,7 +26,7 @@ class SyntaxTest extends PHPUnit_Framework_TestCase
 
     public function testCheckFile()
     {
-        $result = $this->syntax->checkFile(dirname(__FILE__) . '/correct.php');
+        $result = $this->syntax->checkFile(__DIR__ . '/correct.php');
 
         $this->assertEquals(array(), $result);
     }
@@ -39,11 +41,6 @@ class SyntaxTest extends PHPUnit_Framework_TestCase
                 'line' => 1,
                 'description' => 'Parse error: syntax error, unexpected $end in ... on line 1'
             );
-        } elseif (version_compare(PHP_VERSION, '5.4.0', '<')) {
-            $expect = array(
-                'line' => 1,
-                'description' => 'Parse error: syntax error, unexpected $end, expecting T_VARIABLE or T_DOLLAR_OPEN_CURLY_BRACES or T_CURLY_OPEN in ... on line 1'
-            );
         } else {
             $expect = array(
                 'line' => 1,
@@ -57,22 +54,17 @@ class SyntaxTest extends PHPUnit_Framework_TestCase
 
     public function testCheckFileFail()
     {
-        $result = $this->syntax->checkFile(dirname(__FILE__) . '/fail.php');
+        $result = $this->syntax->checkFile(__DIR__ . '/fail.php');
 
         if (version_compare(PHP_VERSION, '5.3.0', '<')) {
             $expect = array(
                 'line' => 4,
-                'description' => 'Parse error: syntax error, unexpected $end in ' . dirname(__FILE__) . '/fail.php on line 4'
-            );
-        } elseif (version_compare(PHP_VERSION, '5.4.0', '<')) {
-            $expect = array(
-                'line' => 4,
-                'description' => 'Parse error: syntax error, unexpected $end, expecting T_VARIABLE or T_DOLLAR_OPEN_CURLY_BRACES or T_CURLY_OPEN in ' . dirname(__FILE__) . '/fail.php on line 4'
+                'description' => 'Parse error: syntax error, unexpected $end in ' . __DIR__ . '/fail.php on line 4'
             );
         } else {
             $expect = array(
                 'line' => 4,
-                'description' => 'Parse error: syntax error, unexpected end of file, expecting variable (T_VARIABLE) or ${ (T_DOLLAR_OPEN_CURLY_BRACES) or {$ (T_CURLY_OPEN) in ' . dirname(__FILE__) . '/fail.php on line 4'
+                'description' => 'Parse error: syntax error, unexpected end of file, expecting variable (T_VARIABLE) or ${ (T_DOLLAR_OPEN_CURLY_BRACES) or {$ (T_CURLY_OPEN) in ' . __DIR__ . '/fail.php on line 4'
             );
         }
 
@@ -82,7 +74,7 @@ class SyntaxTest extends PHPUnit_Framework_TestCase
 
     public function testFormatOutputHelper()
     {
-        $result = Syntax::formatOutputHelper(
+        $result = Php::formatOutputHelper(
             '<?php echo ";' . "\n" . 'echo 1; ?>',
             1
         );

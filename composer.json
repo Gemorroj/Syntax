@@ -1,0 +1,20 @@
+{
+    "name": "gemorroj/syntax",
+    "type": "library",
+    "description": "Code syntax checker.",
+    "license": "GPLv3",
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "authors": [
+        {
+            "name": "Gemorroj",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Syntax": "src/"
+        }
+    }
+}

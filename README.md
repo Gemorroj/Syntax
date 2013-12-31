@@ -1,18 +1,18 @@
 # Check php code syntax
 
-[![Build Status](https://secure.travis-ci.org/Gemorroj/syntax.png?branch=master)](https://travis-ci.org/Gemorroj/syntax)
+[![Build Status](https://secure.travis-ci.org/Gemorroj/Syntax.png?branch=master)](https://travis-ci.org/Gemorroj/Syntax)
 
 Requirements:
 
-- PHP >= 5.2
+- PHP >= 5.3
 
 
 Example:
 ```php
 <?php
-require_once 'Syntax.php';
+use Syntax\Php;
 
-$syntax = new Syntax();
+$syntax = new Php();
 
 $resultCheck = $syntax->check('<?php echo 1; ?>');
 print_r($resultCheck);
