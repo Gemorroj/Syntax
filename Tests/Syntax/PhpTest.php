@@ -42,7 +42,7 @@ class PhpTest extends \PHPUnit_Framework_TestCase
                 'errors' => array(
                     array(
                         'file' => null,
-                        'code' => -1,
+                        'code' => 255,
                         'line' => 1,
                         'type' => 'Parse error',
                         'message' => 'syntax error, unexpected $end, expecting T_VARIABLE or T_DOLLAR_OPEN_CURLY_BRACES or T_CURLY_OPEN',
@@ -55,7 +55,7 @@ class PhpTest extends \PHPUnit_Framework_TestCase
                 'errors' => array(
                     array(
                         'file' => null,
-                        'code' => -1,
+                        'code' => 255,
                         'line' => 1,
                         'type' => 'Parse error',
                         'message' => 'syntax error, unexpected end of file, expecting variable (T_VARIABLE) or ${ (T_DOLLAR_OPEN_CURLY_BRACES) or {$ (T_CURLY_OPEN)',
@@ -81,7 +81,7 @@ class PhpTest extends \PHPUnit_Framework_TestCase
                 'errors' => array(
                     array(
                         'file' => __DIR__ . '/fail.php',
-                        'code' => -1,
+                        'code' => 255,
                         'line' => 4,
                         'type' => 'Parse error',
                         'message' => 'syntax error, unexpected end of file, expecting variable (T_VARIABLE) or ${ (T_DOLLAR_OPEN_CURLY_BRACES) or {$ (T_CURLY_OPEN)',
@@ -94,7 +94,7 @@ class PhpTest extends \PHPUnit_Framework_TestCase
                 'errors' => array(
                     array(
                         'file' => __DIR__ . '/fail.php',
-                        'code' => -1,
+                        'code' => 255,
                         'line' => 4,
                         'type' => 'Parse error',
                         'message' => 'syntax error, unexpected end of file, expecting variable (T_VARIABLE) or ${ (T_DOLLAR_OPEN_CURLY_BRACES) or {$ (T_CURLY_OPEN)',

@@ -159,7 +159,7 @@ class Php
         if ($size > 2) {
             $message = preg_replace('/ in (?:.+) on line (?:[0-9]+)$/', '', $cliArray[1]);
             preg_match('/ on line ([0-9]+)$/', $cliArray[1], $matchLine);
-            $line = $matchLine[1];
+            $line = intval($matchLine[1]);
 
             list($type, $message) = explode(': ', $message);
 
