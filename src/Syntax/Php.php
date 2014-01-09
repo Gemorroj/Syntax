@@ -141,47 +141,70 @@ class Php
     /**
      * @param string $file
      *
-     * @return array
      * @throws \Exception
+     * @return array
      */
     public function checkFile($file)
     {
-        $cliArray = array();
-        $code = 0;
+        $cmd = escapeshellcmd($this->getCli()) . ' -c -f -l ' . escapeshellarg($file);
+        $result = $this->execute($cmd);
 
-        exec(escapeshellcmd($this->getCli()) . ' -c -f -l ' . escapeshellarg($file), $cliArray, $code);
-
-        if (0 === $code) {
+        if (0 === $result['code']) {
             return array('validity' => true, 'errors' => null);
         }
 
-        $size = sizeof($cliArray);
-        if ($size > 2) {
-            $message = preg_replace('/ in (?:.+) on line (?:[0-9]+)$/', '', $cliArray[1]);
-            preg_match('/ on line ([0-9]+)$/', $cliArray[1], $matchLine);
-            $line = intval($matchLine[1]);
+        $fullMessage = preg_replace('/ in (?:.+) on line (?:[0-9]+)$/', '', $result['output']);
+        preg_match('/ on line ([0-9]+)$/', $result['output'], $matchLine);
+        $line = isset($matchLine[1]) ? intval($matchLine[1]) : null;
 
-            list($type, $message) = explode(': ', $message);
+        list($type, $message) = explode(': ', $fullMessage);
 
-            if (null !== $this->getSourceCharset()) {
-                $message = mb_convert_encoding($message, $this->getResultCharset(), $this->getSourceCharset());
-            }
-
-            return array(
-                'validity' => false,
-                'errors' => array(
-                    array(
-                        'file' => $file,
-                        'code' => $code,
-                        'line' => $line,
-                        'type' => $type,
-                        'message' => $message
-                    ),
+        return array(
+            'validity' => false,
+            'errors' => array(
+                array(
+                    'file' => $file,
+                    'code' => $result['code'],
+                    'line' => $line,
+                    'type' => $type,
+                    'message' => $this->convertMessage($message)
                 ),
-            );
+            ),
+        );
+    }
+
+
+    /**
+     * @param string $message
+     * @return string
+     */
+    protected function convertMessage($message)
+    {
+        if (null !== $this->getSourceCharset()) {
+            return mb_convert_encoding($message, $this->getResultCharset(), $this->getSourceCharset());
         }
 
-        throw new \Exception('Could not check syntax');
+        return $message;
+    }
+
+
+    /**
+     * @param string $cmd
+     * @return array
+     * @throws \Exception
+     */
+    protected function execute($cmd)
+    {
+        exec($cmd, $output, $code);
+
+        if (!$output) {
+            throw new \Exception('Could not check syntax', $code);
+        }
+
+        return array(
+            'output' => isset($output[1]) ? $output[1] : null,
+            'code' => $code,
+        );
     }
 
 
