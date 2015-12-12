@@ -13,7 +13,7 @@ class PhpTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->syntax = new Php();
-        $this->syntax->setCli('s:\OpenServer\modules\php\PHP-5.6\php.exe');
+        //$this->syntax->setCli('s:\OpenServer\modules\php\PHP-5.6\php.exe');
     }
 
     public function testCheck()
