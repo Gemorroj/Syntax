@@ -13,14 +13,14 @@ class PhpTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->syntax = new Php();
-        //$this->syntax->setCli('s:\OpenServer\modules\php\PHP-5.4.13\php.exe');
+        $this->syntax->setCli('s:\OpenServer\modules\php\PHP-5.6\php.exe');
     }
 
     public function testCheck()
     {
         $result = $this->syntax->check('<?php echo 1; ?>');
 
-        $this->assertEquals(array('validity' => true, 'errors' => null), $result);
+        self::assertEquals(array('validity' => true, 'errors' => null), $result);
     }
 
 
@@ -28,7 +28,7 @@ class PhpTest extends \PHPUnit_Framework_TestCase
     {
         $result = $this->syntax->checkFile(__DIR__ . '/correct.php');
 
-        $this->assertEquals(array('validity' => true, 'errors' => null), $result);
+        self::assertEquals(array('validity' => true, 'errors' => null), $result);
     }
 
 
@@ -36,38 +36,17 @@ class PhpTest extends \PHPUnit_Framework_TestCase
     {
         $result = $this->syntax->check('<?php echo "; ?>');
 
-        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
-            $expect = array(
-                'validity' => false,
-                'errors' => array(
-                    array(
-                        'file' => null,
-                        'code' => 255,
-                        'line' => 1,
-                        'type' => 'Parse error',
-                        'message' => 'syntax error, unexpected $end, expecting T_VARIABLE or T_DOLLAR_OPEN_CURLY_BRACES or T_CURLY_OPEN',
-                    )
-                ),
-            );
-        } else {
-            $expect = array(
-                'validity' => false,
-                'errors' => array(
-                    array(
-                        'file' => null,
-                        'code' => 255,
-                        'line' => 1,
-                        'type' => 'Parse error',
-                        'message' => 'syntax error, unexpected end of file, expecting variable (T_VARIABLE) or ${ (T_DOLLAR_OPEN_CURLY_BRACES) or {$ (T_CURLY_OPEN)',
-                    )
-                ),
-            );
-        }
+        self::assertTrue(is_array($result));
 
-        // remove file
-        $result['errors'][0]['file'] = null;
+        self::assertFalse($result['validity']);
+        self::assertTrue(is_array($result['errors']));
+        self::assertCount(1, $result['errors']);
 
-        $this->assertEquals($expect, $result);
+        self::assertTrue(is_null($result['errors'][0]['file']));
+        self::assertTrue(is_int($result['errors'][0]['code']));
+        self::assertTrue(is_int($result['errors'][0]['line']));
+        self::assertTrue(is_string($result['errors'][0]['type']));
+        self::assertTrue(is_string($result['errors'][0]['message']));
     }
 
 
@@ -75,35 +54,19 @@ class PhpTest extends \PHPUnit_Framework_TestCase
     {
         $result = $this->syntax->checkFile(__DIR__ . '/fail.php');
 
-        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
-            $expect = array(
-                'validity' => false,
-                'errors' => array(
-                    array(
-                        'file' => __DIR__ . '/fail.php',
-                        'code' => 255,
-                        'line' => 4,
-                        'type' => 'Parse error',
-                        'message' => 'syntax error, unexpected $end, expecting T_VARIABLE or T_DOLLAR_OPEN_CURLY_BRACES or T_CURLY_OPEN',
-                    )
-                ),
-            );
-        } else {
-            $expect = array(
-                'validity' => false,
-                'errors' => array(
-                    array(
-                        'file' => __DIR__ . '/fail.php',
-                        'code' => 255,
-                        'line' => 4,
-                        'type' => 'Parse error',
-                        'message' => 'syntax error, unexpected end of file, expecting variable (T_VARIABLE) or ${ (T_DOLLAR_OPEN_CURLY_BRACES) or {$ (T_CURLY_OPEN)',
-                    )
-                ),
-            );
-        }
+        self::assertTrue(is_array($result));
 
-        $this->assertEquals($expect, $result);
+        self::assertFalse($result['validity']);
+        self::assertTrue(is_array($result['errors']));
+        self::assertCount(1, $result['errors']);
+
+        self::assertTrue(is_string($result['errors'][0]['file']));
+        self::assertTrue(is_int($result['errors'][0]['code']));
+        self::assertTrue(is_int($result['errors'][0]['line']));
+        self::assertTrue(is_string($result['errors'][0]['type']));
+        self::assertTrue(is_string($result['errors'][0]['message']));
+
+        self::assertEquals(__DIR__ . '/fail.php', $result['errors'][0]['file']);
     }
 
 
@@ -114,7 +77,7 @@ class PhpTest extends \PHPUnit_Framework_TestCase
             1
         );
 
-        $this->assertEquals('<div class="syntax-code"><pre><code><span class="syntax-incorrect-line">1</span> <span style="color: #0000BB">&lt;?php </span><span style="color: #007700">echo </span><span style="color: #DD0000">";
+        self::assertEquals('<div class="syntax-code"><pre><code><span class="syntax-incorrect-line">1</span> <span style="color: #0000BB">&lt;?php </span><span style="color: #007700">echo </span><span style="color: #DD0000">";
 <span class="syntax-correct-line">2</span> echo 1; ?&gt;</span>
 </code></pre></div>', $result);
     }

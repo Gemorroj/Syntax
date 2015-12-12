@@ -2,14 +2,11 @@
 namespace Syntax;
 
 /**
- *
  * This software is distributed under the GNU GPL v3.0 license.
  * @author Gemorroj
- * @copyright 2013 http://wapinet.ru
+ * @copyright 2015 http://wapinet.ru
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  * @link https://github.com/Gemorroj/Syntax
- * @version 0.1
- *
  */
 class Php
 {
@@ -25,7 +22,7 @@ class Php
     /**
      * @param string $resultCharset
      *
-     * @return $this
+     * @return Php
      */
     public function setResultCharset($resultCharset)
     {
@@ -44,7 +41,7 @@ class Php
     /**
      * @param string $sourceCharset
      *
-     * @return $this
+     * @return Php
      */
     public function setSourceCharset($sourceCharset)
     {
@@ -133,6 +130,22 @@ class Php
         }
 
         unlink($file);
+
+        return $this->formatCheckOutput($result);
+    }
+
+
+    /**
+     * @param array $result
+     * @return array
+     */
+    protected function formatCheckOutput(array $result)
+    {
+        if (isset($result['errors'])) {
+            array_walk($result['errors'], function (&$item) {
+                $item['file'] = null;
+            });
+        }
 
         return $result;
     }
