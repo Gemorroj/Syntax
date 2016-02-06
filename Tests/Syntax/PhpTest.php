@@ -13,7 +13,6 @@ class PhpTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->syntax = new Php();
-        //$this->syntax->setCli('s:\OpenServer\modules\php\PHP-5.6\php.exe');
     }
 
     public function testCheck()
@@ -26,7 +25,7 @@ class PhpTest extends \PHPUnit_Framework_TestCase
 
     public function testCheckFile()
     {
-        $result = $this->syntax->checkFile(__DIR__ . '/correct.php');
+        $result = $this->syntax->checkFile(__DIR__ . '/../fixtures/correct.php');
 
         self::assertEquals(array('validity' => true, 'errors' => null), $result);
     }
@@ -52,7 +51,7 @@ class PhpTest extends \PHPUnit_Framework_TestCase
 
     public function testCheckFileFail()
     {
-        $result = $this->syntax->checkFile(__DIR__ . '/fail.php');
+        $result = $this->syntax->checkFile(__DIR__ . '/../fixtures/fail.php');
 
         self::assertTrue(is_array($result));
 
@@ -66,7 +65,7 @@ class PhpTest extends \PHPUnit_Framework_TestCase
         self::assertTrue(is_string($result['errors'][0]['type']));
         self::assertTrue(is_string($result['errors'][0]['message']));
 
-        self::assertEquals(__DIR__ . '/fail.php', $result['errors'][0]['file']);
+        self::assertEquals(__DIR__ . '/../fixtures/fail.php', $result['errors'][0]['file']);
     }
 
 
