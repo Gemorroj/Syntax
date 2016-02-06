@@ -1,6 +1,8 @@
 <?php
 namespace Syntax;
 
+use Symfony\Component\Process\Process;
+
 /**
  * This software is distributed under the GNU GPL v3.0 license.
  * @author Gemorroj
@@ -208,15 +210,17 @@ class Php
      */
     protected function execute($cmd)
     {
-        exec($cmd, $output, $code);
+        $process = new Process($cmd);
+        $process->run();
 
+        $output = $process->getOutput();
         if (!$output) {
-            throw new \Exception('Could not check syntax', $code);
+            throw new \Exception('Could not check syntax', $process->getExitCode() ?: 0);
         }
 
         return array(
-            'output' => isset($output[1]) ? $output[1] : null,
-            'code' => $code,
+            'output' => $process->isSuccessful() ? null : explode("\n", trim($output))[0],
+            'code' => $process->getExitCode(),
         );
     }
 
