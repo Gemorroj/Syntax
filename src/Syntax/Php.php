@@ -218,8 +218,9 @@ class Php
             throw new \Exception('Could not check syntax', $process->getExitCode() ?: 0);
         }
 
+        $data = explode("\n", trim($output));
         return array(
-            'output' => $process->isSuccessful() ? null : explode("\n", trim($output))[0],
+            'output' => $process->isSuccessful() ? null : $data[0],
             'code' => $process->getExitCode(),
         );
     }
