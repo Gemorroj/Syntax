@@ -3,13 +3,6 @@ namespace Syntax;
 
 use Symfony\Component\Process\Process;
 
-/**
- * This software is distributed under the GNU GPL v3.0 license.
- * @author Gemorroj
- * @copyright 2015 http://wapinet.ru
- * @license http://www.gnu.org/licenses/gpl-3.0.txt
- * @link https://github.com/Gemorroj/Syntax
- */
 class Php
 {
     // UNIX /usr/bin/php
