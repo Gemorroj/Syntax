@@ -12,13 +12,17 @@
     },
     "authors": [
         {
-            "name": "Gemorroj",
-            "role": "Developer"
+            "name": "Gemorroj"
         }
     ],
     "autoload": {
         "psr-4": {
-            "Syntax\\": "src/Syntax"
+            "Syntax\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Syntax\\Tests\\": "tests/"
         }
     }
 }
