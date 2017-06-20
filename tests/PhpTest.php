@@ -1,5 +1,5 @@
 <?php
-namespace Tests\Syntax;
+namespace Syntax\Tests;
 
 use Syntax\Php;
 
