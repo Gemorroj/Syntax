@@ -1,7 +1,7 @@
 <?php
 namespace Syntax;
 
-use Symfony\Component\Process\Process;
+use Symfony\Component\Process\ProcessBuilder;
 
 class Php
 {
@@ -13,6 +13,11 @@ class Php
     private $sourceCharset;
     private $resultCharset = 'UTF-8';
 
+
+    public function __construct()
+    {
+        $this->setTempDirectory(\sys_get_temp_dir());
+    }
 
     /**
      * @param string $resultCharset
@@ -154,11 +159,16 @@ class Php
      */
     public function checkFile($file)
     {
-        $cmd = escapeshellcmd($this->getCli()) . ' -c -f -l ' . escapeshellarg($file);
-        $result = $this->execute($cmd);
+        $processBuilder = new ProcessBuilder();
+        $processBuilder->setPrefix($this->getCli());
+        $processBuilder->setArguments(array('-l', $file));
+        $result = $this->execute($processBuilder);
 
         if (0 === $result['code']) {
-            return array('validity' => true, 'errors' => null);
+            return array(
+                'validity' => true,
+                'errors' => null
+            );
         }
 
         $fullMessage = preg_replace('/ in (?:.+) on line (?:[0-9]+)$/', '', $result['output']);
@@ -197,13 +207,13 @@ class Php
 
 
     /**
-     * @param string $cmd
+     * @param ProcessBuilder $processBuilder
      * @return array
      * @throws \Exception
      */
-    protected function execute($cmd)
+    protected function execute(ProcessBuilder $processBuilder)
     {
-        $process = new Process($cmd);
+        $process = $processBuilder->getProcess();
         $process->run();
 
         $output = $process->getOutput();
