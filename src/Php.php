@@ -104,19 +104,19 @@ class Php
      */
     public function check($source)
     {
-        $file = tempnam($this->getTempDirectory(), 'syntax');
+        $file = \tempnam($this->getTempDirectory(), 'syntax');
         if (false === $file) {
             throw new \Exception('Could not create temp file');
         }
-        $fp = fopen($file, 'w');
+        $fp = \fopen($file, 'w');
         if (false === $fp) {
             throw new \Exception('Could not open temp file');
         }
-        $write = fwrite($fp, $source);
+        $write = \fwrite($fp, $source);
         if (false === $write) {
             throw new \Exception('Could not write source to temp file');
         }
-        $close = fclose($fp);
+        $close = \fclose($fp);
         if (false === $close) {
             throw new \Exception('Could not close temp file');
         }
@@ -125,11 +125,11 @@ class Php
         try {
             $result = $this->checkFile($file);
         } catch (\Exception $e) {
-            unlink($file);
+            \unlink($file);
             throw $e;
         }
 
-        unlink($file);
+        \unlink($file);
 
         return $this->formatCheckOutput($result);
     }
@@ -142,7 +142,7 @@ class Php
     protected function formatCheckOutput(array $result)
     {
         if (isset($result['errors'])) {
-            array_walk($result['errors'], function (&$item) {
+            \array_walk($result['errors'], function (&$item) {
                 $item['file'] = null;
             });
         }
@@ -171,11 +171,11 @@ class Php
             );
         }
 
-        $fullMessage = preg_replace('/ in (?:.+) on line (?:[0-9]+)$/', '', $result['output']);
-        preg_match('/ on line ([0-9]+)$/', $result['output'], $matchLine);
-        $line = isset($matchLine[1]) ? intval($matchLine[1]) : null;
+        $fullMessage = \preg_replace('/ in (?:.+) on line (?:[0-9]+)$/', '', $result['output']);
+        \preg_match('/ on line ([0-9]+)$/', $result['output'], $matchLine);
+        $line = isset($matchLine[1]) ? \intval($matchLine[1]) : null;
 
-        list($type, $message) = explode(': ', $fullMessage);
+        list($type, $message) = \explode(': ', $fullMessage);
 
         return array(
             'validity' => false,
@@ -199,7 +199,7 @@ class Php
     protected function convertMessage($message)
     {
         if (null !== $this->getSourceCharset()) {
-            return mb_convert_encoding($message, $this->getResultCharset(), $this->getSourceCharset());
+            return \mb_convert_encoding($message, $this->getResultCharset(), $this->getSourceCharset());
         }
 
         return $message;
@@ -221,7 +221,7 @@ class Php
             throw new \Exception('Could not check syntax', $process->getExitCode() ?: 0);
         }
 
-        $data = explode("\n", trim($output));
+        $data = \explode("\n", \trim($output));
         return array(
             'output' => $process->isSuccessful() ? null : $data[0],
             'code' => $process->getExitCode(),
@@ -240,7 +240,7 @@ class Php
      */
     public static function formatOutputHelper($source, $line, $cssCodeClass = 'syntax-code', $cssCodeCorrectLineClass = 'syntax-correct-line', $cssCodeIncorrectLineClass = 'syntax-incorrect-line')
     {
-        return '<div class="' . htmlspecialchars($cssCodeClass) . '"><pre><code>' . self::formatCode($source, $line, $cssCodeCorrectLineClass, $cssCodeIncorrectLineClass) . '</code></pre></div>';
+        return '<div class="' . \htmlspecialchars($cssCodeClass) . '"><pre><code>' . self::formatCode($source, $line, $cssCodeCorrectLineClass, $cssCodeIncorrectLineClass) . '</code></pre></div>';
     }
 
 
@@ -255,13 +255,13 @@ class Php
     protected static function formatCode($source, $line, $cssCodeCorrectLineClass, $cssCodeIncorrectLineClass)
     {
         $array = self::formatXhtmlHighlight($source);
-        $all = sizeof($array);
-        $len = strlen($all);
+        $all = \sizeof($array);
+        $len = \strlen($all);
         $page = '';
         for ($i = 0; $i < $all; ++$i) {
             $next = (string)($i + 1);
-            $l = strlen($next);
-            $page .= '<span class="' . htmlspecialchars($line == $next ? $cssCodeIncorrectLineClass : $cssCodeCorrectLineClass) . '">' . ($l < $len ? str_repeat('&#160;', $len - $l) : '') . $next . '</span> ' . $array[$i] . "\n";
+            $l = \strlen($next);
+            $page .= '<span class="' . \htmlspecialchars($line == $next ? $cssCodeIncorrectLineClass : $cssCodeCorrectLineClass) . '">' . ($l < $len ? \str_repeat('&#160;', $len - $l) : '') . $next . '</span> ' . $array[$i] . "\n";
         }
 
         return $page;
@@ -275,18 +275,18 @@ class Php
      */
     protected static function formatXhtmlHighlight($source)
     {
-        return array_slice(
-            explode(
+        return \array_slice(
+            \explode(
                 "\n",
-                str_replace(
+                \str_replace(
                     array('&nbsp;', '<code>', '</code>', '<br />'),
                     array(' ', '', '', "\n"),
-                    preg_replace(
+                    \preg_replace(
                         '#color="(.*?)"#', 'style="color: $1"',
-                        str_replace(
+                        \str_replace(
                             array('<font ', '</font>'),
                             array('<span ', '</span>'),
-                            highlight_string($source, true)
+                            \highlight_string($source, true)
                         )
                     )
                 )
