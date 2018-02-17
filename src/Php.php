@@ -1,7 +1,7 @@
 <?php
 namespace Syntax;
 
-use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Component\Process\Process;
 
 class Php
 {
@@ -159,16 +159,13 @@ class Php
      */
     public function checkFile($file)
     {
-        $processBuilder = new ProcessBuilder();
-        $processBuilder->setPrefix($this->getCli());
-        $processBuilder->setArguments(array('-l', $file));
-        $result = $this->execute($processBuilder);
+        $result = $this->execute(new Process([$this->getCli(), '-l', $file]));
 
         if (0 === $result['code']) {
-            return array(
+            return [
                 'validity' => true,
                 'errors' => null
-            );
+            ];
         }
 
         $fullMessage = \preg_replace('/ in (?:.+) on line (?:[0-9]+)$/', '', $result['output']);
@@ -177,18 +174,18 @@ class Php
 
         list($type, $message) = \explode(': ', $fullMessage);
 
-        return array(
+        return [
             'validity' => false,
-            'errors' => array(
-                array(
+            'errors' => [
+                [
                     'file' => $file,
                     'code' => $result['code'],
                     'line' => $line,
                     'type' => $type,
                     'message' => $this->convertMessage($message)
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
 
@@ -207,13 +204,12 @@ class Php
 
 
     /**
-     * @param ProcessBuilder $processBuilder
+     * @param Process $process
      * @return array
      * @throws \Exception
      */
-    protected function execute(ProcessBuilder $processBuilder)
+    protected function execute(Process $process)
     {
-        $process = $processBuilder->getProcess();
         $process->run();
 
         $output = $process->getOutput();
@@ -222,10 +218,10 @@ class Php
         }
 
         $data = \explode("\n", \trim($output));
-        return array(
+        return [
             'output' => $process->isSuccessful() ? null : $data[0],
             'code' => $process->getExitCode(),
-        );
+        ];
     }
 
 
@@ -279,13 +275,13 @@ class Php
             \explode(
                 "\n",
                 \str_replace(
-                    array('&nbsp;', '<code>', '</code>', '<br />'),
-                    array(' ', '', '', "\n"),
+                    ['&nbsp;', '<code>', '</code>', '<br />'],
+                    [' ', '', '', "\n"],
                     \preg_replace(
                         '#color="(.*?)"#', 'style="color: $1"',
                         \str_replace(
-                            array('<font ', '</font>'),
-                            array('<span ', '</span>'),
+                            ['<font ', '</font>'],
+                            ['<span ', '</span>'],
                             \highlight_string($source, true)
                         )
                     )
