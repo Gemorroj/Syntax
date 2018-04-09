@@ -22,18 +22,6 @@ print_r($resultCheckFile);
 - PHP >= 5.6
 
 ### Installation:
-
-- Add to composer.json:
-
-```json
-{
-    "require": {
-        "gemorroj/syntax": "dev-master"
-    }
-}
-```
-- Install project:
-
 ```bash
-$ php composer.phar update gemorroj/syntax
+composer require gemorroj/syntax
 ```
