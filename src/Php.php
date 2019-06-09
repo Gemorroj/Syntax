@@ -142,7 +142,7 @@ class Php
     protected function formatCheckOutput(array $result)
     {
         if (isset($result['errors'])) {
-            \array_walk($result['errors'], function (&$item) {
+            \array_walk($result['errors'], static function (&$item) {
                 $item['file'] = null;
             });
         }
@@ -212,14 +212,20 @@ class Php
     {
         $process->run();
 
+        if ($process->isSuccessful()) {
+            return [
+                'output' => null,
+                'code' => $process->getExitCode(),
+            ];
+        }
+
         $output = $process->getOutput();
         if (!$output) {
             throw new \Exception('Could not check syntax', $process->getExitCode() ?: 0);
         }
 
-        $data = \explode("\n", \trim($output));
         return [
-            'output' => $process->isSuccessful() ? null : $data[0],
+            'output' => \explode("\n", \trim($output))[0],
             'code' => $process->getExitCode(),
         ];
     }
@@ -251,11 +257,11 @@ class Php
     protected static function formatCode($source, $line, $cssCodeCorrectLineClass, $cssCodeIncorrectLineClass)
     {
         $array = self::formatXhtmlHighlight($source);
-        $all = \sizeof($array);
+        $all = \count($array);
         $len = \strlen($all);
         $page = '';
         for ($i = 0; $i < $all; ++$i) {
-            $next = (string)($i + 1);
+            $next = $i + 1;
             $l = \strlen($next);
             $page .= '<span class="' . \htmlspecialchars($line === $next ? $cssCodeIncorrectLineClass : $cssCodeCorrectLineClass) . '">' . ($l < $len ? \str_repeat('&#160;', $len - $l) : '') . $next . '</span> ' . $array[$i] . "\n";
         }

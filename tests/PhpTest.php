@@ -76,8 +76,8 @@ class PhpTest extends \PHPUnit_Framework_TestCase
             1
         );
 
-        self::assertEquals('<div class="syntax-code"><pre><code><span class="syntax-incorrect-line">1</span> <span style="color: #0000BB">&lt;?php </span><span style="color: #007700">echo </span><span style="color: #DD0000">";
-<span class="syntax-correct-line">2</span> echo 1; ?&gt;</span>
-</code></pre></div>', $result);
+        self::assertEquals('<div class="syntax-code"><pre><code><span class="syntax-incorrect-line">1</span> <span style="color: #0000BB">&lt;?php </span><span style="color: #007700">echo </span><span style="color: #DD0000">";'."\n".
+'<span class="syntax-correct-line">2</span> echo 1; ?&gt;</span>'."\n".
+'</code></pre></div>', $result);
     }
 }
