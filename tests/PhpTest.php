@@ -19,7 +19,7 @@ class PhpTest extends \PHPUnit_Framework_TestCase
     {
         $result = $this->syntax->check('<?php echo 1; ?>');
 
-        self::assertEquals(array('validity' => true, 'errors' => null), $result);
+        self::assertEquals(['validity' => true, 'errors' => null], $result);
     }
 
 
@@ -27,7 +27,7 @@ class PhpTest extends \PHPUnit_Framework_TestCase
     {
         $result = $this->syntax->checkFile(__DIR__ . '/fixtures/correct.php');
 
-        self::assertEquals(array('validity' => true, 'errors' => null), $result);
+        self::assertEquals(['validity' => true, 'errors' => null], $result);
     }
 
 
@@ -35,17 +35,17 @@ class PhpTest extends \PHPUnit_Framework_TestCase
     {
         $result = $this->syntax->check('<?php echo "; ?>');
 
-        self::assertTrue(is_array($result));
+        self::assertTrue(\is_array($result));
 
         self::assertFalse($result['validity']);
-        self::assertTrue(is_array($result['errors']));
+        self::assertTrue(\is_array($result['errors']));
         self::assertCount(1, $result['errors']);
 
-        self::assertTrue(is_null($result['errors'][0]['file']));
-        self::assertTrue(is_int($result['errors'][0]['code']));
-        self::assertTrue(is_int($result['errors'][0]['line']));
-        self::assertTrue(is_string($result['errors'][0]['type']));
-        self::assertTrue(is_string($result['errors'][0]['message']));
+        self::assertTrue(\is_null($result['errors'][0]['file']));
+        self::assertTrue(\is_int($result['errors'][0]['code']));
+        self::assertTrue(\is_int($result['errors'][0]['line']));
+        self::assertTrue(\is_string($result['errors'][0]['type']));
+        self::assertTrue(\is_string($result['errors'][0]['message']));
     }
 
 
@@ -53,17 +53,17 @@ class PhpTest extends \PHPUnit_Framework_TestCase
     {
         $result = $this->syntax->checkFile(__DIR__ . '/fixtures/fail.php');
 
-        self::assertTrue(is_array($result));
+        self::assertTrue(\is_array($result));
 
         self::assertFalse($result['validity']);
-        self::assertTrue(is_array($result['errors']));
+        self::assertTrue(\is_array($result['errors']));
         self::assertCount(1, $result['errors']);
 
-        self::assertTrue(is_string($result['errors'][0]['file']));
-        self::assertTrue(is_int($result['errors'][0]['code']));
-        self::assertTrue(is_int($result['errors'][0]['line']));
-        self::assertTrue(is_string($result['errors'][0]['type']));
-        self::assertTrue(is_string($result['errors'][0]['message']));
+        self::assertTrue(\is_string($result['errors'][0]['file']));
+        self::assertTrue(\is_int($result['errors'][0]['code']));
+        self::assertTrue(\is_int($result['errors'][0]['line']));
+        self::assertTrue(\is_string($result['errors'][0]['type']));
+        self::assertTrue(\is_string($result['errors'][0]['message']));
 
         self::assertEquals(__DIR__ . '/fixtures/fail.php', $result['errors'][0]['file']);
     }

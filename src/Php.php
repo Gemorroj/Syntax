@@ -99,8 +99,8 @@ class Php
     /**
      * @param string $source
      *
-     * @return array
      * @throws \Exception
+     * @return array
      */
     public function check($source)
     {
@@ -205,8 +205,8 @@ class Php
 
     /**
      * @param Process $process
-     * @return array
      * @throws \Exception
+     * @return array
      */
     protected function execute(Process $process)
     {
@@ -257,7 +257,7 @@ class Php
         for ($i = 0; $i < $all; ++$i) {
             $next = (string)($i + 1);
             $l = \strlen($next);
-            $page .= '<span class="' . \htmlspecialchars($line == $next ? $cssCodeIncorrectLineClass : $cssCodeCorrectLineClass) . '">' . ($l < $len ? \str_repeat('&#160;', $len - $l) : '') . $next . '</span> ' . $array[$i] . "\n";
+            $page .= '<span class="' . \htmlspecialchars($line === $next ? $cssCodeIncorrectLineClass : $cssCodeCorrectLineClass) . '">' . ($l < $len ? \str_repeat('&#160;', $len - $l) : '') . $next . '</span> ' . $array[$i] . "\n";
         }
 
         return $page;
@@ -278,7 +278,8 @@ class Php
                     ['&nbsp;', '<code>', '</code>', '<br />'],
                     [' ', '', '', "\n"],
                     \preg_replace(
-                        '#color="(.*?)"#', 'style="color: $1"',
+                        '#color="(.*?)"#',
+                        'style="color: $1"',
                         \str_replace(
                             ['<font ', '</font>'],
                             ['<span ', '</span>'],
