@@ -172,7 +172,7 @@ class Php
         \preg_match('/ on line ([0-9]+)$/', $result['output'], $matchLine);
         $line = isset($matchLine[1]) ? \intval($matchLine[1]) : null;
 
-        list($type, $message) = \explode(': ', $fullMessage);
+        [$type, $message] = \explode(': ', $fullMessage);
 
         return [
             'validity' => false,

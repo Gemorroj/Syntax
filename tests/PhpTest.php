@@ -1,9 +1,10 @@
 <?php
 namespace Syntax\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Syntax\Php;
 
-class PhpTest extends \PHPUnit_Framework_TestCase
+class PhpTest extends TestCase
 {
     /**
      * @var Php
