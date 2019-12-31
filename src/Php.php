@@ -16,93 +16,54 @@ class Php
 
     public function __construct()
     {
-        $this->setTempDirectory(\sys_get_temp_dir());
+        $this->tempDirectory = \sys_get_temp_dir();
     }
 
-    /**
-     * @param string $resultCharset
-     *
-     * @return Php
-     */
-    public function setResultCharset($resultCharset)
+    public function setResultCharset(string $resultCharset): self
     {
         $this->resultCharset = $resultCharset;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getResultCharset()
+    public function getResultCharset(): string
     {
         return $this->resultCharset;
     }
 
-    /**
-     * @param string $sourceCharset
-     *
-     * @return Php
-     */
-    public function setSourceCharset($sourceCharset)
+    public function setSourceCharset(?string $sourceCharset): self
     {
         $this->sourceCharset = $sourceCharset;
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getSourceCharset()
+    public function getSourceCharset(): ?string
     {
         return $this->sourceCharset;
     }
 
-
-    /**
-     * @param string $path
-     * @return Php
-     */
-    public function setCli($path)
+    public function setCli(string $path): self
     {
         $this->cli = $path;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getCli()
+    public function getCli(): string
     {
         return $this->cli;
     }
 
-
-    /**
-     * @param string $path
-     * @return Php
-     */
-    public function setTempDirectory($path)
+    public function setTempDirectory(string $path): self
     {
         $this->tempDirectory = $path;
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getTempDirectory()
+    public function getTempDirectory(): string
     {
         return $this->tempDirectory;
     }
 
-
-    /**
-     * @param string $source
-     *
-     * @throws \Exception
-     * @return array
-     */
-    public function check($source)
+    public function check(string $source): array
     {
         $file = \tempnam($this->getTempDirectory(), 'syntax');
         if (false === $file) {
@@ -124,7 +85,7 @@ class Php
 
         try {
             $result = $this->checkFile($file);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \unlink($file);
             throw $e;
         }
@@ -134,12 +95,7 @@ class Php
         return $this->formatCheckOutput($result);
     }
 
-
-    /**
-     * @param array $result
-     * @return array
-     */
-    protected function formatCheckOutput(array $result)
+    protected function formatCheckOutput(array $result): array
     {
         if (isset($result['errors'])) {
             \array_walk($result['errors'], static function (&$item) {
@@ -150,16 +106,9 @@ class Php
         return $result;
     }
 
-
-    /**
-     * @param string $file
-     *
-     * @throws \Exception
-     * @return array
-     */
-    public function checkFile($file)
+    public function checkFile(string $file): array
     {
-        $result = $this->execute(new Process([$this->getCli(), '-l', $file]));
+        $result = $this->execute($file);
 
         if (0 === $result['code']) {
             return [
@@ -170,7 +119,7 @@ class Php
 
         $fullMessage = \preg_replace('/ in (?:.+) on line (?:[0-9]+)$/', '', $result['output']);
         \preg_match('/ on line ([0-9]+)$/', $result['output'], $matchLine);
-        $line = isset($matchLine[1]) ? \intval($matchLine[1]) : null;
+        $line = isset($matchLine[1]) ? (int)($matchLine[1]) : null;
 
         [$type, $message] = \explode(': ', $fullMessage);
 
@@ -188,12 +137,7 @@ class Php
         ];
     }
 
-
-    /**
-     * @param string $message
-     * @return string
-     */
-    protected function convertMessage($message)
+    protected function convertMessage(string $message): string
     {
         if (null !== $this->getSourceCharset()) {
             return \mb_convert_encoding($message, $this->getResultCharset(), $this->getSourceCharset());
@@ -202,14 +146,9 @@ class Php
         return $message;
     }
 
-
-    /**
-     * @param Process $process
-     * @throws \Exception
-     * @return array
-     */
-    protected function execute(Process $process)
+    protected function execute(string $file): array
     {
+        $process = new Process([$this->getCli(), '-l', $file]);
         $process->run();
 
         if ($process->isSuccessful()) {
@@ -230,31 +169,12 @@ class Php
         ];
     }
 
-
-    /**
-     * @param string $source
-     * @param int    $line
-     * @param string $cssCodeClass
-     * @param string $cssCodeCorrectLineClass
-     * @param string $cssCodeIncorrectLineClass
-     *
-     * @return string
-     */
-    public static function formatOutputHelper($source, $line, $cssCodeClass = 'syntax-code', $cssCodeCorrectLineClass = 'syntax-correct-line', $cssCodeIncorrectLineClass = 'syntax-incorrect-line')
+    public static function formatOutputHelper(string $source, int $line, string $cssCodeClass = 'syntax-code', string $cssCodeCorrectLineClass = 'syntax-correct-line', string $cssCodeIncorrectLineClass = 'syntax-incorrect-line'): string
     {
         return '<div class="' . \htmlspecialchars($cssCodeClass) . '"><pre><code>' . self::formatCode($source, $line, $cssCodeCorrectLineClass, $cssCodeIncorrectLineClass) . '</code></pre></div>';
     }
 
-
-    /**
-     * @param string $source
-     * @param int    $line
-     * @param string $cssCodeCorrectLineClass
-     * @param string $cssCodeIncorrectLineClass
-     *
-     * @return string
-     */
-    protected static function formatCode($source, $line, $cssCodeCorrectLineClass, $cssCodeIncorrectLineClass)
+    protected static function formatCode(string $source, int $line, string $cssCodeCorrectLineClass = 'syntax-correct-line', string $cssCodeIncorrectLineClass = 'syntax-incorrect-line'): string
     {
         $array = self::formatXhtmlHighlight($source);
         $all = \count($array);
@@ -269,13 +189,7 @@ class Php
         return $page;
     }
 
-
-    /**
-     * @param string $source
-     *
-     * @return array
-     */
-    protected static function formatXhtmlHighlight($source)
+    protected static function formatXhtmlHighlight(string $source): array
     {
         return \array_slice(
             \explode(
