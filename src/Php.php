@@ -1,4 +1,5 @@
 <?php
+
 namespace Syntax;
 
 use Symfony\Component\Process\Process;
@@ -13,7 +14,6 @@ class Php
     private $sourceCharset;
     private $resultCharset = 'UTF-8';
 
-
     public function __construct()
     {
         $this->tempDirectory = \sys_get_temp_dir();
@@ -22,6 +22,7 @@ class Php
     public function setResultCharset(string $resultCharset): self
     {
         $this->resultCharset = $resultCharset;
+
         return $this;
     }
 
@@ -33,6 +34,7 @@ class Php
     public function setSourceCharset(?string $sourceCharset): self
     {
         $this->sourceCharset = $sourceCharset;
+
         return $this;
     }
 
@@ -44,6 +46,7 @@ class Php
     public function setCli(string $path): self
     {
         $this->cli = $path;
+
         return $this;
     }
 
@@ -55,6 +58,7 @@ class Php
     public function setTempDirectory(string $path): self
     {
         $this->tempDirectory = $path;
+
         return $this;
     }
 
@@ -82,28 +86,17 @@ class Php
             throw new \Exception('Could not close temp file');
         }
 
-
         try {
             $result = $this->checkFile($file);
         } catch (\Throwable $e) {
             \unlink($file);
+
             throw $e;
         }
 
         \unlink($file);
 
         return $this->formatCheckOutput($result);
-    }
-
-    protected function formatCheckOutput(array $result): array
-    {
-        if (isset($result['errors'])) {
-            \array_walk($result['errors'], static function (&$item) {
-                $item['file'] = null;
-            });
-        }
-
-        return $result;
     }
 
     public function checkFile(string $file): array
@@ -113,13 +106,13 @@ class Php
         if (0 === $result['code']) {
             return [
                 'validity' => true,
-                'errors' => null
+                'errors' => null,
             ];
         }
 
         $fullMessage = \preg_replace('/ in (?:.+) on line (?:[0-9]+)$/', '', $result['output']);
         \preg_match('/ on line ([0-9]+)$/', $result['output'], $matchLine);
-        $line = isset($matchLine[1]) ? (int)($matchLine[1]) : null;
+        $line = isset($matchLine[1]) ? (int) ($matchLine[1]) : null;
 
         [$type, $message] = \explode(': ', $fullMessage);
 
@@ -131,10 +124,26 @@ class Php
                     'code' => $result['code'],
                     'line' => $line,
                     'type' => $type,
-                    'message' => $this->convertMessage($message)
+                    'message' => $this->convertMessage($message),
                 ],
             ],
         ];
+    }
+
+    public static function formatOutputHelper(string $source, int $line, string $cssCodeClass = 'syntax-code', string $cssCodeCorrectLineClass = 'syntax-correct-line', string $cssCodeIncorrectLineClass = 'syntax-incorrect-line'): string
+    {
+        return '<div class="'.\htmlspecialchars($cssCodeClass).'"><pre><code>'.self::formatCode($source, $line, $cssCodeCorrectLineClass, $cssCodeIncorrectLineClass).'</code></pre></div>';
+    }
+
+    protected function formatCheckOutput(array $result): array
+    {
+        if (isset($result['errors'])) {
+            \array_walk($result['errors'], static function (&$item) {
+                $item['file'] = null;
+            });
+        }
+
+        return $result;
     }
 
     protected function convertMessage(string $message): string
@@ -169,11 +178,6 @@ class Php
         ];
     }
 
-    public static function formatOutputHelper(string $source, int $line, string $cssCodeClass = 'syntax-code', string $cssCodeCorrectLineClass = 'syntax-correct-line', string $cssCodeIncorrectLineClass = 'syntax-incorrect-line'): string
-    {
-        return '<div class="' . \htmlspecialchars($cssCodeClass) . '"><pre><code>' . self::formatCode($source, $line, $cssCodeCorrectLineClass, $cssCodeIncorrectLineClass) . '</code></pre></div>';
-    }
-
     protected static function formatCode(string $source, int $line, string $cssCodeCorrectLineClass = 'syntax-correct-line', string $cssCodeIncorrectLineClass = 'syntax-incorrect-line'): string
     {
         $array = self::formatXhtmlHighlight($source);
@@ -183,7 +187,7 @@ class Php
         for ($i = 0; $i < $all; ++$i) {
             $next = $i + 1;
             $l = \strlen($next);
-            $page .= '<span class="' . \htmlspecialchars($line === $next ? $cssCodeIncorrectLineClass : $cssCodeCorrectLineClass) . '">' . ($l < $len ? \str_repeat('&#160;', $len - $l) : '') . $next . '</span> ' . $array[$i] . "\n";
+            $page .= '<span class="'.\htmlspecialchars($line === $next ? $cssCodeIncorrectLineClass : $cssCodeCorrectLineClass).'">'.($l < $len ? \str_repeat('&#160;', $len - $l) : '').$next.'</span> '.$array[$i]."\n";
         }
 
         return $page;

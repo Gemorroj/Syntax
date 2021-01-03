@@ -1,9 +1,14 @@
 <?php
+
 namespace Syntax\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Syntax\Php;
 
+/**
+ * @internal
+ * @coversNothing
+ */
 class PhpTest extends TestCase
 {
     /**
@@ -11,7 +16,7 @@ class PhpTest extends TestCase
      */
     private $syntax;
 
-    public function setUp()
+    protected function setUp(): void
     {
         $this->syntax = new Php();
     }
@@ -23,14 +28,12 @@ class PhpTest extends TestCase
         self::assertEquals(['validity' => true, 'errors' => null], $result);
     }
 
-
     public function testCheckFile()
     {
-        $result = $this->syntax->checkFile(__DIR__ . '/fixtures/correct.php');
+        $result = $this->syntax->checkFile(__DIR__.'/fixtures/correct.php');
 
         self::assertEquals(['validity' => true, 'errors' => null], $result);
     }
-
 
     public function testCheckFail()
     {
@@ -49,10 +52,9 @@ class PhpTest extends TestCase
         self::assertTrue(\is_string($result['errors'][0]['message']));
     }
 
-
     public function testCheckFileFail()
     {
-        $result = $this->syntax->checkFile(__DIR__ . '/fixtures/fail.php');
+        $result = $this->syntax->checkFile(__DIR__.'/fixtures/fail.php');
 
         self::assertTrue(\is_array($result));
 
@@ -66,14 +68,13 @@ class PhpTest extends TestCase
         self::assertTrue(\is_string($result['errors'][0]['type']));
         self::assertTrue(\is_string($result['errors'][0]['message']));
 
-        self::assertEquals(__DIR__ . '/fixtures/fail.php', $result['errors'][0]['file']);
+        self::assertEquals(__DIR__.'/fixtures/fail.php', $result['errors'][0]['file']);
     }
-
 
     public function testFormatOutputHelper()
     {
         $result = Php::formatOutputHelper(
-            '<?php echo ";' . "\n" . 'echo 1; ?>',
+            '<?php echo ";'."\n".'echo 1; ?>',
             1
         );
 
