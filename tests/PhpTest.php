@@ -21,57 +21,57 @@ class PhpTest extends TestCase
         $this->syntax = new Php();
     }
 
-    public function testCheck()
+    public function testCheck(): void
     {
         $result = $this->syntax->check('<?php echo 1; ?>');
 
         self::assertEquals(['validity' => true, 'errors' => null], $result);
     }
 
-    public function testCheckFile()
+    public function testCheckFile(): void
     {
         $result = $this->syntax->checkFile(__DIR__.'/fixtures/correct.php');
 
         self::assertEquals(['validity' => true, 'errors' => null], $result);
     }
 
-    public function testCheckFail()
+    public function testCheckFail(): void
     {
         $result = $this->syntax->check('<?php echo "; ?>');
 
-        self::assertTrue(\is_array($result));
+        self::assertIsArray($result);
 
         self::assertFalse($result['validity']);
-        self::assertTrue(\is_array($result['errors']));
+        self::assertIsArray($result['errors']);
         self::assertCount(1, $result['errors']);
 
-        self::assertTrue(\is_null($result['errors'][0]['file']));
-        self::assertTrue(\is_int($result['errors'][0]['code']));
-        self::assertTrue(\is_int($result['errors'][0]['line']));
-        self::assertTrue(\is_string($result['errors'][0]['type']));
-        self::assertTrue(\is_string($result['errors'][0]['message']));
+        self::assertNull($result['errors'][0]['file']);
+        self::assertIsInt($result['errors'][0]['code']);
+        self::assertIsInt($result['errors'][0]['line']);
+        self::assertIsString($result['errors'][0]['type']);
+        self::assertIsString($result['errors'][0]['message']);
     }
 
-    public function testCheckFileFail()
+    public function testCheckFileFail(): void
     {
         $result = $this->syntax->checkFile(__DIR__.'/fixtures/fail.php');
 
-        self::assertTrue(\is_array($result));
+        self::assertIsArray($result);
 
         self::assertFalse($result['validity']);
-        self::assertTrue(\is_array($result['errors']));
+        self::assertIsArray($result['errors']);
         self::assertCount(1, $result['errors']);
 
-        self::assertTrue(\is_string($result['errors'][0]['file']));
-        self::assertTrue(\is_int($result['errors'][0]['code']));
-        self::assertTrue(\is_int($result['errors'][0]['line']));
-        self::assertTrue(\is_string($result['errors'][0]['type']));
-        self::assertTrue(\is_string($result['errors'][0]['message']));
+        self::assertIsString($result['errors'][0]['file']);
+        self::assertIsInt($result['errors'][0]['code']);
+        self::assertIsInt($result['errors'][0]['line']);
+        self::assertIsString($result['errors'][0]['type']);
+        self::assertIsString($result['errors'][0]['message']);
 
         self::assertEquals(__DIR__.'/fixtures/fail.php', $result['errors'][0]['file']);
     }
 
-    public function testFormatOutputHelper()
+    public function testFormatOutputHelper(): void
     {
         $result = Php::formatOutputHelper(
             '<?php echo ";'."\n".'echo 1; ?>',

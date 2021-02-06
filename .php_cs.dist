@@ -6,8 +6,7 @@ $finder = PhpCsFixer\Finder::create()
 
 return PhpCsFixer\Config::create()
     ->setRules([
-        '@PSR2' => true,
-        '@PhpCsFixer' => true,
+        '@Symfony' => true,
         '@PHP73Migration' => true,
         'array_syntax' => ['syntax' => 'short'],
         'combine_consecutive_issets' => true,
