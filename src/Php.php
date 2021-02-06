@@ -157,7 +157,7 @@ class Php
 
     protected function execute(string $file): array
     {
-        $process = new Process([$this->getCli(), '-l -d display_errors=1', $file]);
+        $process = new Process([$this->getCli(), '-d display_errors=1 -l', $file]);
         $process->run();
 
         if ($process->isSuccessful()) {
@@ -168,7 +168,6 @@ class Php
         }
 
         $output = $process->getOutput();
-        \var_dump($output);
         if (!$output) {
             throw new \Exception('Could not check syntax', $process->getExitCode() ?: 0);
         }
