@@ -1,6 +1,6 @@
 # Check php code syntax
 
-[![Build Status](https://secure.travis-ci.org/Gemorroj/Syntax.png?branch=master)](https://travis-ci.org/Gemorroj/Syntax)
+[![Continuous Integration](https://github.com/Gemorroj/Syntax/workflows/Continuous%20Integration/badge.svg?branch=master)](https://github.com/Gemorroj/Syntax/actions?query=workflow%3A%22Continuous+Integration%22)
 
 
 ### Example:
