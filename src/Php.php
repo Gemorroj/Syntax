@@ -114,6 +114,7 @@ class Php
         \preg_match('/ on line ([0-9]+)$/', $result['output'], $matchLine);
         $line = isset($matchLine[1]) ? (int) ($matchLine[1]) : null;
 
+        \var_dump($fullMessage);
         [$type, $message] = \explode(': ', $fullMessage);
 
         return [
