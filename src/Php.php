@@ -114,7 +114,6 @@ class Php
         \preg_match('/ on line ([0-9]+)$/', $result['output'], $matchLine);
         $line = isset($matchLine[1]) ? (int) ($matchLine[1]) : null;
 
-        \var_dump($fullMessage);
         [$type, $message] = \explode(': ', $fullMessage);
 
         return [
@@ -158,7 +157,7 @@ class Php
 
     protected function execute(string $file): array
     {
-        $process = new Process([$this->getCli(), '-l', $file]);
+        $process = new Process([$this->getCli(), '-l -d display_errors=stdout', $file]);
         $process->run();
 
         if ($process->isSuccessful()) {
@@ -169,6 +168,7 @@ class Php
         }
 
         $output = $process->getOutput();
+        \var_dump($output);
         if (!$output) {
             throw new \Exception('Could not check syntax', $process->getExitCode() ?: 0);
         }
