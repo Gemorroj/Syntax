@@ -157,7 +157,7 @@ class Php
 
     protected function execute(string $file): array
     {
-        $process = new Process([$this->getCli(), '-d display_errors=1 -l', $file]);
+        $process = new Process([$this->getCli(), '-d display_errors=1', '-l', $file]);
         $process->run();
 
         if ($process->isSuccessful()) {
