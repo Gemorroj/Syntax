@@ -9,10 +9,10 @@ class Php
     // UNIX /usr/bin/php
     // BSD /usr/local/bin/php
     // Win C:/php/php.exe
-    private $cli = 'php';
-    private $tempDirectory;
-    private $sourceCharset;
-    private $resultCharset = 'UTF-8';
+    private string $cli = 'php';
+    private string $tempDirectory;
+    private ?string $sourceCharset = null;
+    private string $resultCharset = 'UTF-8';
 
     public function __construct()
     {

@@ -7,6 +7,7 @@ use Syntax\Php;
 
 /**
  * @internal
+ *
  * @coversNothing
  */
 class PhpTest extends TestCase
