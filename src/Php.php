@@ -195,23 +195,29 @@ class Php
 
     protected static function formatXhtmlHighlight(string $source): array
     {
-        return \array_slice(
-            \explode(
-                "\n",
+        $highlightString = \highlight_string($source, true);
+        $highlightString = \str_replace(
+            ['&nbsp;', '<code style="color: #000000">', '<code>', '</code>', '<pre>', '</pre>', '<br />'],
+            [' ', '', '', '', '', '', "\n"],
+            \preg_replace(
+                '#color="(.*?)"#',
+                'style="color: $1"',
                 \str_replace(
-                    ['&nbsp;', '<code>', '</code>', '<br />'],
-                    [' ', '', '', "\n"],
-                    \preg_replace(
-                        '#color="(.*?)"#',
-                        'style="color: $1"',
-                        \str_replace(
-                            ['<font ', '</font>'],
-                            ['<span ', '</span>'],
-                            \highlight_string($source, true)
-                        )
-                    )
+                    ['<font ', '</font>'],
+                    ['<span ', '</span>'],
+                    $highlightString
                 )
-            ),
+            )
+        );
+
+        $arr = \explode("\n", $highlightString);
+
+        if (\PHP_VERSION_ID >= 80300) {
+            return $arr;
+        }
+
+        return \array_slice(
+            $arr,
             1,
             -2
         );
