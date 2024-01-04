@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Syntax;
 
 use Symfony\Component\Process\Process;
@@ -182,11 +184,11 @@ class Php
     {
         $array = self::formatXhtmlHighlight($source);
         $all = \count($array);
-        $len = \strlen($all);
+        $len = \strlen((string) $all);
         $page = '';
         for ($i = 0; $i < $all; ++$i) {
             $next = $i + 1;
-            $l = \strlen($next);
+            $l = \strlen((string) $next);
             $page .= '<span class="'.\htmlspecialchars($line === $next ? $cssCodeIncorrectLineClass : $cssCodeCorrectLineClass).'">'.($l < $len ? \str_repeat('&#160;', $len - $l) : '').$next.'</span> '.$array[$i]."\n";
         }
 
