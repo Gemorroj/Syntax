@@ -14,10 +14,7 @@ use Syntax\Php;
  */
 class PhpTest extends TestCase
 {
-    /**
-     * @var Php
-     */
-    private $syntax;
+    private Php $syntax;
 
     protected function setUp(): void
     {
