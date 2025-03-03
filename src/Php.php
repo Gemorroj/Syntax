@@ -140,7 +140,7 @@ class Php
     protected function formatCheckOutput(array $result): array
     {
         if (isset($result['errors'])) {
-            \array_walk($result['errors'], static function (&$item) {
+            \array_walk($result['errors'], static function (&$item): void {
                 $item['file'] = null;
             });
         }
