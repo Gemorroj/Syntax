@@ -4,7 +4,7 @@
     "description": "PHP code syntax checker.",
     "license": "LGPL-3.0-or-later",
     "require": {
-        "php": ">=8.0.2",
+        "php": ">=8.1",
         "symfony/process": "^6.4||^7.4||^8.0"
     },
     "require-dev": {
