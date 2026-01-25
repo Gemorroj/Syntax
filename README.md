@@ -19,7 +19,7 @@ print_r($resultCheckFile);
 
 ### Requirements:
 
-- PHP >= 8.1
+- PHP >= 8.2
 
 ### Installation:
 ```bash
