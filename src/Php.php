@@ -73,32 +73,29 @@ class Php
     {
         $file = \tempnam($this->getTempDirectory(), 'syntax');
         if (false === $file) {
-            throw new \Exception('Could not create temp file');
-        }
-        $fp = \fopen($file, 'w');
-        if (false === $fp) {
-            throw new \Exception('Could not open temp file');
-        }
-        $write = \fwrite($fp, $source);
-        if (false === $write) {
-            throw new \Exception('Could not write source to temp file');
-        }
-        $close = \fclose($fp);
-        if (false === $close) {
-            throw new \Exception('Could not close temp file');
+            throw new \RuntimeException('Could not create temp file');
         }
 
         try {
-            $result = $this->checkFile($file);
-        } catch (\Throwable $e) {
+            $fp = \fopen($file, 'w');
+            if (false === $fp) {
+                throw new \RuntimeException('Could not open temp file');
+            }
+
+            $write = \fwrite($fp, $source);
+            if (false === $write) {
+                throw new \RuntimeException('Could not write source to temp file');
+            }
+
+            $close = \fclose($fp);
+            if (false === $close) {
+                throw new \RuntimeException('Could not close temp file');
+            }
+
+            return $this->formatCheckOutput($this->checkFile($file));
+        } finally {
             \unlink($file);
-
-            throw $e;
         }
-
-        \unlink($file);
-
-        return $this->formatCheckOutput($result);
     }
 
     public function checkFile(string $file): array
@@ -116,7 +113,9 @@ class Php
         \preg_match('/ on line ([0-9]+)$/', $result['output'], $matchLine);
         $line = isset($matchLine[1]) ? (int) ($matchLine[1]) : null;
 
-        [$type, $message] = \explode(': ', $fullMessage);
+        $parts = \explode(': ', $fullMessage, 2);
+        $type = $parts[0];
+        $message = $parts[1] ?? '';
 
         return [
             'validity' => false,
@@ -170,8 +169,8 @@ class Php
         }
 
         $output = $process->getOutput();
-        if (!$output) {
-            throw new \Exception('Could not check syntax', $process->getExitCode() ?: 0);
+        if ('' === \trim($output)) {
+            throw new \RuntimeException('Could not check syntax', $process->getExitCode() ?: 0);
         }
 
         return [
@@ -214,14 +213,15 @@ class Php
 
         $arr = \explode("\n", $highlightString);
 
-        if (\PHP_VERSION_ID >= 80300) {
-            return $arr;
+        // PHP < 8.3 wraps the highlighted output in an additional <span>; strip it.
+        if ('<span style="color: #000000">' === $arr[0]) {
+            \array_shift($arr);
+            if ('' === \end($arr)) {
+                \array_pop($arr);
+            }
+            \array_pop($arr);
         }
 
-        return \array_slice(
-            $arr,
-            1,
-            -2
-        );
+        return $arr;
     }
 }
