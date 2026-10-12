@@ -11,112 +11,108 @@ class PhpTest extends TestCase
 {
     private Php $syntax;
 
+    /**
+     * @var string[]
+     */
+    private array $tempFiles = [];
+
     protected function setUp(): void
     {
         $this->syntax = new Php();
     }
 
-    public function testCheck(): void
+    protected function tearDown(): void
     {
-        $result = $this->syntax->check('<?php echo 1; ?>');
+        foreach ($this->tempFiles as $file) {
+            if (\is_file($file)) {
+                \unlink($file);
+            }
+        }
 
-        self::assertEquals(['validity' => true, 'errors' => null], $result);
+        $this->tempFiles = [];
     }
 
-    public function testCheckFile(): void
+    public function testCheckValidSource(): void
     {
-        $result = $this->syntax->checkFile(__DIR__.'/fixtures/correct.php');
-
-        self::assertEquals(['validity' => true, 'errors' => null], $result);
+        self::assertValid($this->syntax->check(''));
+        self::assertValid($this->syntax->check('<?php echo 1; ?>'));
     }
 
-    public function testCheckFail(): void
+    public function testCheckReportsParseError(): void
     {
-        $result = $this->syntax->check('<?php echo "; ?>');
-
-        self::assertIsArray($result);
-
-        self::assertFalse($result['validity']);
-        self::assertIsArray($result['errors']);
-        self::assertCount(1, $result['errors']);
-
-        self::assertNull($result['errors'][0]['file']);
-        self::assertIsInt($result['errors'][0]['code']);
-        self::assertSame(1, $result['errors'][0]['line']);
-        self::assertSame('Parse error', $result['errors'][0]['type']);
-        self::assertStringContainsString('syntax error', $result['errors'][0]['message']);
+        self::assertError($this->syntax->check('<?php echo "; ?>'), null, 1);
     }
 
-    public function testCheckFileFail(): void
+    public function testCheckReportsErrorLineNumber(): void
     {
-        $result = $this->syntax->checkFile(__DIR__.'/fixtures/fail.php');
-
-        self::assertIsArray($result);
-
-        self::assertFalse($result['validity']);
-        self::assertIsArray($result['errors']);
-        self::assertCount(1, $result['errors']);
-
-        self::assertIsString($result['errors'][0]['file']);
-        self::assertIsInt($result['errors'][0]['code']);
-        self::assertSame(4, $result['errors'][0]['line']);
-        self::assertSame('Parse error', $result['errors'][0]['type']);
-        self::assertStringContainsString('syntax error', $result['errors'][0]['message']);
-
-        self::assertEquals(__DIR__.'/fixtures/fail.php', $result['errors'][0]['file']);
+        self::assertError($this->syntax->check("<?php\n\$a = 1;\necho \";"), null, 3);
     }
 
-    public function testCheckThrowsOnInvalidCli(): void
+    public function testCheckFileReportsErrorWithFilePath(): void
     {
-        $this->syntax->setCli('definitely-not-a-php-binary');
+        $file = $this->writeTempFile('<?php echo ";');
 
-        $this->expectException(\RuntimeException::class);
-
-        $this->syntax->check('<?php echo 1; ?>');
+        self::assertError($this->syntax->checkFile($file), $file, 1);
     }
 
     public function testCheckRemovesTempFile(): void
     {
-        $directory = \sys_get_temp_dir().'/syntax-test-'.\uniqid();
-        \mkdir($directory);
-
-        try {
-            $this->syntax->setTempDirectory($directory);
+        $this->withTempDirectory(function (string $directory): void {
             $this->syntax->check('<?php echo 1; ?>');
 
             self::assertSame([], \glob($directory.'/*'));
-        } finally {
-            \array_map('unlink', \glob($directory.'/*') ?: []);
-            \rmdir($directory);
-        }
+        });
     }
 
-    public function testCli(): void
+    public function testCheckRemovesTempFileOnFailure(): void
+    {
+        $this->withTempDirectory(function (string $directory): void {
+            $this->syntax->setCli('definitely-not-a-php-binary');
+
+            $thrown = null;
+            try {
+                $this->syntax->check('<?php echo 1; ?>');
+            } catch (\RuntimeException $e) {
+                $thrown = $e;
+            }
+
+            self::assertInstanceOf(\RuntimeException::class, $thrown);
+            self::assertSame([], \glob($directory.'/*'));
+        });
+    }
+
+    public function testOptions(): void
     {
         self::assertSame('php', $this->syntax->getCli());
         self::assertSame($this->syntax, $this->syntax->setCli('/usr/bin/php'));
         self::assertSame('/usr/bin/php', $this->syntax->getCli());
-    }
 
-    public function testTempDirectory(): void
-    {
         self::assertSame(\sys_get_temp_dir(), $this->syntax->getTempDirectory());
         self::assertSame($this->syntax, $this->syntax->setTempDirectory('/tmp'));
         self::assertSame('/tmp', $this->syntax->getTempDirectory());
-    }
 
-    public function testSourceCharset(): void
-    {
         self::assertNull($this->syntax->getSourceCharset());
         self::assertSame($this->syntax, $this->syntax->setSourceCharset('CP1251'));
         self::assertSame('CP1251', $this->syntax->getSourceCharset());
-    }
 
-    public function testResultCharset(): void
-    {
         self::assertSame('UTF-8', $this->syntax->getResultCharset());
         self::assertSame($this->syntax, $this->syntax->setResultCharset('CP1251'));
         self::assertSame('CP1251', $this->syntax->getResultCharset());
+    }
+
+    public function testConvertMessage(): void
+    {
+        $syntax = new class extends Php {
+            public function convert(string $message): string
+            {
+                return $this->convertMessage($message);
+            }
+        };
+        $syntax->setSourceCharset('CP1251')->setResultCharset('UTF-8');
+
+        $cp1251 = \mb_convert_encoding('Привет', 'CP1251', 'UTF-8');
+
+        self::assertSame('Привет', $syntax->convert($cp1251));
     }
 
     public function testFormatOutputHelper(): void
@@ -126,7 +122,7 @@ class PhpTest extends TestCase
             1
         );
 
-        self::assertEquals('<div class="syntax-code"><pre><code><span class="syntax-incorrect-line">1</span> <span style="color: #0000BB">&lt;?php </span><span style="color: #007700">echo </span><span style="color: #DD0000">";'."\n".
+        self::assertSame('<div class="syntax-code"><pre><code><span class="syntax-incorrect-line">1</span> <span style="color: #0000BB">&lt;?php </span><span style="color: #007700">echo </span><span style="color: #DD0000">";'."\n".
 '<span class="syntax-correct-line">2</span> echo 1; ?&gt;</span>'."\n".
 '</code></pre></div>', $result);
     }
@@ -153,5 +149,46 @@ class PhpTest extends TestCase
         self::assertStringContainsString('&#160;1</span> ', $result);
         self::assertSame(11, \substr_count($result, 'class="syntax-correct-line"'));
         self::assertSame(1, \substr_count($result, 'class="syntax-incorrect-line"'));
+    }
+
+    private static function assertValid(array $result): void
+    {
+        self::assertSame(['validity' => true, 'errors' => null], $result);
+    }
+
+    private static function assertError(array $result, ?string $file, int $line): void
+    {
+        self::assertFalse($result['validity']);
+        self::assertCount(1, $result['errors']);
+        self::assertIsInt($result['errors'][0]['code']);
+        self::assertSame($file, $result['errors'][0]['file']);
+        self::assertSame($line, $result['errors'][0]['line']);
+        self::assertSame('Parse error', $result['errors'][0]['type']);
+        self::assertStringContainsString('syntax error', $result['errors'][0]['message']);
+    }
+
+    private function writeTempFile(string $source): string
+    {
+        $file = \tempnam(\sys_get_temp_dir(), 'syntax-test');
+        self::assertNotFalse($file);
+        \file_put_contents($file, $source);
+
+        $this->tempFiles[] = $file;
+
+        return $file;
+    }
+
+    private function withTempDirectory(callable $callback): void
+    {
+        $directory = \sys_get_temp_dir().'/syntax-test-'.\uniqid();
+        \mkdir($directory);
+
+        try {
+            $this->syntax->setTempDirectory($directory);
+            $callback($directory);
+        } finally {
+            \array_map('unlink', \glob($directory.'/*') ?: []);
+            \rmdir($directory);
+        }
     }
 }
