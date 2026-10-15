@@ -18,3 +18,4 @@ PHP library for checking PHP code syntax. Namespace: `Syntax\`.
 - PSR-4 autoloading: `Syntax\` -> `src/`, `Syntax\Tests\` -> `tests/`
 - Code style is enforced by PHP-CS-Fixer (`php-cs-fixer.dist.php`)
 - Follow existing code style
+- Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
